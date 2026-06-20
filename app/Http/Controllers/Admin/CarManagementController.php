@@ -78,15 +78,21 @@ class CarManagementController extends Controller
             'color'            => 'required|string|max:100',
             'capacity'         => 'required|integer|min:1|max:20',
             'transmission'     => 'required|in:manual,automatic',
-            'fuel_type'        => 'required|in:gasoline,diesel,electric,hybrid',
+            'fuel_type'        => 'required|in:petrol,diesel,electric,hybrid',
             'price_per_day'    => 'required|numeric|min:0',
-            'price_with_driver'=> 'required|numeric|min:0',
+            'price_with_driver'=> 'nullable|numeric|min:0',
             'image'            => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
             'description'      => 'nullable|string',
-            'features'         => 'nullable|array',
-            'features.*'       => 'string|max:255',
+            'features'         => 'nullable|string',
             'is_active'        => 'boolean',
         ]);
+
+        // Convert features string to array
+        if (!empty($validated['features'])) {
+            $validated['features'] = array_map('trim', explode(',', $validated['features']));
+        } else {
+            $validated['features'] = null;
+        }
 
         // Upload gambar utama
         $validated['image'] = $request->file('image')->store('cars', 'public');
@@ -123,16 +129,22 @@ class CarManagementController extends Controller
             'color'            => 'required|string|max:100',
             'capacity'         => 'required|integer|min:1|max:20',
             'transmission'     => 'required|in:manual,automatic',
-            'fuel_type'        => 'required|in:gasoline,diesel,electric,hybrid',
+            'fuel_type'        => 'required|in:petrol,diesel,electric,hybrid',
             'price_per_day'    => 'required|numeric|min:0',
-            'price_with_driver'=> 'required|numeric|min:0',
+            'price_with_driver'=> 'nullable|numeric|min:0',
             'image'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'description'      => 'nullable|string',
-            'features'         => 'nullable|array',
-            'features.*'       => 'string|max:255',
+            'features'         => 'nullable|string',
             'status'           => 'required|in:available,maintenance,rented',
             'is_active'        => 'boolean',
         ]);
+
+        // Convert features string to array
+        if (!empty($validated['features'])) {
+            $validated['features'] = array_map('trim', explode(',', $validated['features']));
+        } else {
+            $validated['features'] = null;
+        }
 
         // Upload gambar baru jika ada
         if ($request->hasFile('image')) {
@@ -188,6 +200,28 @@ class CarManagementController extends Controller
 
         return redirect()->back()
             ->with('success', "Mobil \"{$car->name}\" berhasil {$status}.");
+    }
+
+    /**
+     * Update status mobil (available, rented, maintenance).
+     */
+    public function updateStatus(Request $request, Car $car)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:available,rented,maintenance',
+        ]);
+
+        $car->update($validated);
+
+        $statusLabel = match($validated['status']) {
+            'available' => 'Tersedia',
+            'rented' => 'Disewa',
+            'maintenance' => 'Perawatan',
+            default => $validated['status'],
+        };
+
+        return redirect()->back()
+            ->with('success', "Status mobil \"{$car->name}\" diubah ke {$statusLabel}.");
     }
 
     /**

@@ -35,17 +35,13 @@
            class="px-4 py-2 rounded-xl text-sm font-medium transition-colors {{ request('status') == 'pending' ? 'bg-yellow-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
             Menunggu
         </a>
-        <a href="{{ route('admin.payments.index', ['status' => 'paid']) }}"
-           class="px-4 py-2 rounded-xl text-sm font-medium transition-colors {{ request('status') == 'paid' ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-            Dibayar
-        </a>
         <a href="{{ route('admin.payments.index', ['status' => 'verified']) }}"
-           class="px-4 py-2 rounded-xl text-sm font-medium transition-colors {{ request('status') == 'verified' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+           class="px-4 py-2 rounded-xl text-sm font-medium transition-colors {{ request('status') == 'verified' ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
             Terverifikasi
         </a>
-        <a href="{{ route('admin.payments.index', ['status' => 'failed']) }}"
-           class="px-4 py-2 rounded-xl text-sm font-medium transition-colors {{ request('status') == 'failed' ? 'bg-red-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-            Gagal
+        <a href="{{ route('admin.payments.index', ['status' => 'rejected']) }}"
+           class="px-4 py-2 rounded-xl text-sm font-medium transition-colors {{ request('status') == 'rejected' ? 'bg-red-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+            Ditolak
         </a>
     </div>
 
@@ -99,25 +95,21 @@
                         </td>
                         <td class="py-4 px-6 hidden lg:table-cell">
                             <span class="inline-flex items-center gap-1 text-sm text-gray-600">
-                                <i data-lucide="{{ ($payment->method ?? '') == 'transfer' ? 'building-2' : (($payment->method ?? '') == 'cash' ? 'banknote' : 'credit-card') }}" class="w-4 h-4 text-gray-400"></i>
-                                {{ ucfirst($payment->method ?? '-') }}
+                                <i data-lucide="{{ ($payment->payment_method ?? '') == 'bank_transfer' ? 'building-2' : (($payment->payment_method ?? '') == 'cash' ? 'banknote' : 'credit-card') }}" class="w-4 h-4 text-gray-400"></i>
+                                {{ ucfirst(str_replace('_', ' ', $payment->payment_method ?? '-')) }}
                             </span>
                         </td>
                         <td class="py-4 px-6">
                             @php
                                 $statusColors = [
                                     'pending' => 'bg-yellow-100 text-yellow-700',
-                                    'paid' => 'bg-green-100 text-green-700',
-                                    'verified' => 'bg-blue-100 text-blue-700',
-                                    'failed' => 'bg-red-100 text-red-700',
-                                    'refunded' => 'bg-orange-100 text-orange-700',
+                                    'verified' => 'bg-green-100 text-green-700',
+                                    'rejected' => 'bg-red-100 text-red-700',
                                 ];
                                 $statusLabels = [
                                     'pending' => 'Menunggu',
-                                    'paid' => 'Dibayar',
                                     'verified' => 'Terverifikasi',
-                                    'failed' => 'Gagal',
-                                    'refunded' => 'Dikembalikan',
+                                    'rejected' => 'Ditolak',
                                 ];
                             @endphp
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $statusColors[$payment->status] ?? 'bg-gray-100 text-gray-700' }}">

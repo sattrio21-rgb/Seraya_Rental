@@ -22,17 +22,13 @@
                 @php
                     $statusColors = [
                         'pending' => 'bg-yellow-100 text-yellow-700',
-                        'paid' => 'bg-green-100 text-green-700',
-                        'verified' => 'bg-blue-100 text-blue-700',
-                        'failed' => 'bg-red-100 text-red-700',
-                        'refunded' => 'bg-orange-100 text-orange-700',
+                        'verified' => 'bg-green-100 text-green-700',
+                        'rejected' => 'bg-red-100 text-red-700',
                     ];
                     $statusLabels = [
                         'pending' => 'Menunggu',
-                        'paid' => 'Dibayar',
                         'verified' => 'Terverifikasi',
-                        'failed' => 'Gagal',
-                        'refunded' => 'Dikembalikan',
+                        'rejected' => 'Ditolak',
                     ];
                 @endphp
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $statusColors[$payment->status ?? 'pending'] ?? 'bg-gray-100 text-gray-700' }}">
@@ -65,8 +61,8 @@
                     <div>
                         <p class="text-xs text-gray-500 mb-1">Metode Pembayaran</p>
                         <div class="flex items-center gap-2">
-                            <i data-lucide="{{ ($payment->method ?? '') == 'transfer' ? 'building-2' : (($payment->method ?? '') == 'cash' ? 'banknote' : 'credit-card') }}" class="w-5 h-5 text-gray-400"></i>
-                            <span class="text-sm font-semibold text-gray-800">{{ ucfirst($payment->method ?? '-') }}</span>
+                            <i data-lucide="{{ ($payment->payment_method ?? '') == 'bank_transfer' ? 'building-2' : (($payment->payment_method ?? '') == 'cash' ? 'banknote' : 'credit-card') }}" class="w-5 h-5 text-gray-400"></i>
+                            <span class="text-sm font-semibold text-gray-800">{{ ucfirst(str_replace('_', ' ', $payment->payment_method ?? '-')) }}</span>
                         </div>
                     </div>
                     <div>
@@ -75,7 +71,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 mb-1">Tanggal Pembayaran</p>
-                        <p class="text-sm text-gray-800">{{ $payment->paid_at ? \Carbon\Carbon::parse($payment->paid_at)->format('d M Y H:i') : '-' }}</p>
+                        <p class="text-sm text-gray-800">{{ $payment->verified_at ? \Carbon\Carbon::parse($payment->verified_at)->format('d M Y H:i') : '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -111,14 +107,14 @@
             </div>
 
             <!-- Proof of Payment -->
-            @if($payment->proof_image ?? false)
+            @if($payment->payment_proof ?? false)
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <i data-lucide="image" class="w-5 h-5 text-primary-600"></i>
                     Bukti Pembayaran
                 </h4>
-                <a href="{{ asset('storage/' . $payment->proof_image) }}" target="_blank" class="block w-full max-w-md bg-gray-100 rounded-xl overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
-                    <img src="{{ asset('storage/' . $payment->proof_image) }}" alt="Bukti Pembayaran" class="w-full h-auto">
+                <a href="{{ asset('storage/' . $payment->payment_proof) }}" target="_blank" class="block w-full max-w-md bg-gray-100 rounded-xl overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+                    <img src="{{ asset('storage/' . $payment->payment_proof) }}" alt="Bukti Pembayaran" class="w-full h-auto">
                 </a>
             </div>
             @endif
@@ -139,7 +135,7 @@
         <div class="space-y-6">
 
             <!-- Action Panel -->
-            @if(($payment->status ?? '') == 'paid')
+            @if(($payment->status ?? '') == 'pending')
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <i data-lucide="shield-check" class="w-5 h-5 text-primary-600"></i>

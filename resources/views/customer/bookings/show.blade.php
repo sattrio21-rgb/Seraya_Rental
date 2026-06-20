@@ -69,28 +69,24 @@
             @endif
             <form action="{{ route('bookings.payment', $booking) }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Bayar</label>
-                        <input type="number" name="amount" value="{{ $booking->total_price }}" class="input-field" required>
+                <input type="hidden" name="payment_method" value="QRIS">
+                <input type="hidden" name="amount" value="{{ $booking->total_price }}">
+
+                {{-- QRIS Image --}}
+                <div class="text-center mb-4 p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm font-medium text-gray-700 mb-3">Scan QRIS untuk melakukan pembayaran</p>
+                    <div class="inline-block p-4 bg-white rounded-lg border-2 border-gray-200">
+                        <img src="{{ asset('storage/qris/qris-seraya.png') }}" alt="QRIS Seraya" class="w-48 h-48 object-contain">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Metode Pembayaran</label>
-                        <select name="payment_method" class="input-field" required>
-                            <option value="bank_transfer">Transfer Bank</option>
-                            <option value="cash">Cash</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Bank</label>
-                        <input type="text" name="bank_name" class="input-field" placeholder="BCA, Mandiri, dll">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Bukti Pembayaran</label>
-                        <input type="file" name="payment_proof" accept="image/*" class="input-field" required>
-                    </div>
+                    <p class="text-xs text-gray-500 mt-2">Total: <span class="font-bold text-blue-600">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</span></p>
                 </div>
-                <button type="submit" class="btn-primary">Upload Bukti Bayar</button>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Bukti Pembayaran</label>
+                    <input type="file" name="payment_proof" accept="image/*" class="input-field" required>
+                    <p class="text-xs text-gray-500 mt-1">Upload screenshot bukti pembayaran QRIS</p>
+                </div>
+                <button type="submit" class="btn-primary w-full">Upload Bukti Bayar</button>
             </form>
         </div>
         @endif

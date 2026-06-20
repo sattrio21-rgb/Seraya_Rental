@@ -23,6 +23,7 @@ class DocumentController extends Controller
             $validated['file_path'] = $request->file('file')->store('documents', 'public');
         }
         $validated['user_id'] = auth()->id();
+        $validated['status'] = 'pending';
         Document::create($validated);
         return back()->with('success', 'Dokumen berhasil diupload. Menunggu verifikasi admin.');
     }

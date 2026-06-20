@@ -49,6 +49,7 @@ class BookingController extends Controller
         $validated['user_id'] = auth()->id();
         $validated['booking_code'] = $service->generateBookingCode();
         $validated['total_price'] = $totalPrice;
+        $validated['status'] = 'pending';
 
         $booking = Booking::create($validated);
 
@@ -88,6 +89,7 @@ class BookingController extends Controller
             $validated['payment_proof'] = $request->file('payment_proof')->store('payments', 'public');
         }
         $validated['booking_id'] = $booking->id;
+        $validated['status'] = 'pending';
         Payment::create($validated);
         return back()->with('success', 'Bukti pembayaran berhasil diupload. Menunggu verifikasi admin.');
     }

@@ -32,10 +32,10 @@
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama mobil, plat nomor..."
                        class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
             </div>
-            <select name="category" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                <option value="">Semua Kategori</option>
-                @foreach($categories ?? [] as $category)
-                    <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+            <select name="brand" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <option value="">Semua Merek</option>
+                @foreach($brands ?? [] as $brand)
+                    <option value="{{ $brand }}" {{ request('brand') == $brand ? 'selected' : '' }}>{{ $brand }}</option>
                 @endforeach
             </select>
             <select name="status" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
@@ -57,10 +57,11 @@
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-100">
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Mobil</th>
-                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">Kategori</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">Merek</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Harga/Hari</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase hidden lg:table-cell">Kapasitas</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Status</th>
+                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Aktif</th>
                         <th class="text-right py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Aksi</th>
                     </tr>
                 </thead>
@@ -80,13 +81,13 @@
                                 </div>
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">{{ $car->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ $car->plate_number ?? '-' }} &middot; {{ $car->brand ?? '' }}</p>
+                                    <p class="text-xs text-gray-500">{{ $car->plate_number ?? '-' }} &middot; {{ $car->model ?? '' }}</p>
                                 </div>
                             </div>
                         </td>
                         <td class="py-4 px-6 hidden md:table-cell">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700">
-                                {{ $car->category->name ?? '-' }}
+                                {{ $car->brand ?? '-' }}
                             </span>
                         </td>
                         <td class="py-4 px-6">
@@ -100,33 +101,31 @@
                             </div>
                         </td>
                         <td class="py-4 px-6">
-                            @php
-                                $statusColors = [
-                                    'available' => 'bg-green-100 text-green-700',
-                                    'rented' => 'bg-yellow-100 text-yellow-700',
-                                    'maintenance' => 'bg-red-100 text-red-700',
-                                ];
-                                $statusLabels = [
-                                    'available' => 'Tersedia',
-                                    'rented' => 'Disewa',
-                                    'maintenance' => 'Perawatan',
-                                ];
-                            @endphp
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $statusColors[$car->status] ?? 'bg-gray-100 text-gray-700' }}">
-                                {{ $statusLabels[$car->status] ?? $car->status }}
-                            </span>
+                            <form action="{{ route('admin.cars.status', $car->id) }}" method="POST" x-data="{ status: '{{ $car->status }}' }">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="status" :value="status">
+                                <select x-model="status" @change="$el.form.submit()" class="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500
+                                    {{ $car->status === 'available' ? 'bg-green-100 text-green-700' : ($car->status === 'rented' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') }}">
+                                    <option value="available">Tersedia</option>
+                                    <option value="rented">Disewa</option>
+                                    <option value="maintenance">Perawatan</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td class="py-4 px-6">
+                            <form action="{{ route('admin.cars.toggle', $car->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors {{ $car->is_active ? 'bg-primary-600' : 'bg-gray-300' }}" title="{{ $car->is_active ? 'Aktif' : 'Nonaktif' }}">
+                                    <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {{ $car->is_active ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                                </button>
+                            </form>
                         </td>
                         <td class="py-4 px-6">
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ route('admin.cars.edit', $car->id) }}" class="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors" title="Edit">
                                     <i data-lucide="pencil" class="w-4 h-4"></i>
                                 </a>
-                                <form action="{{ route('admin.cars.toggle', $car->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    <button type="submit" class="p-2 text-gray-500 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors" title="Ubah Status">
-                                        <i data-lucide="toggle-left" class="w-4 h-4"></i>
-                                    </button>
-                                </form>
                                 <form action="{{ route('admin.cars.destroy', $car->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus mobil ini?')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus">
@@ -138,7 +137,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="py-16 text-center">
+                        <td colspan="7" class="py-16 text-center">
                             <i data-lucide="car" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
                             <p class="text-lg font-semibold text-gray-600 mb-2">Belum ada data mobil</p>
                             <p class="text-sm text-gray-500 mb-4">Mulai tambahkan mobil ke armada Anda</p>

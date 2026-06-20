@@ -164,8 +164,8 @@
                class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
                 <i data-lucide="bell" class="w-5 h-5 nav-icon"></i>
                 Notifikasi
-                @if(isset($unreadNotifications) && $unreadNotifications > 0)
-                    <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadNotifications }}</span>
+                @if(isset($unreadCount) && $unreadCount > 0)
+                    <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>
                 @endif
             </a>
         </nav>
@@ -177,10 +177,10 @@
                     <i data-lucide="user" class="w-5 h-5 text-primary-600"></i>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-gray-800 truncate">{{ Auth::user()->name ?? 'Admin' }}</p>
+                    <p class="text-sm font-semibold text-gray-800 truncate">{{ Auth::guard('admin')->user()->name ?? 'Admin' }}</p>
                     <p class="text-xs text-gray-400">Administrator</p>
                 </div>
-                <form action="{{ route('logout') }}" method="POST" class="inline">
+                <form action="{{ route('admin.logout') }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors" title="Keluar">
                         <i data-lucide="log-out" class="w-4 h-4"></i>
@@ -214,7 +214,7 @@
                     <!-- Notifications -->
                     <a href="{{ route('admin.notifications.index') }}" class="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
                         <i data-lucide="bell" class="w-5 h-5"></i>
-                        @if(isset($unreadNotifications) && $unreadNotifications > 0)
+                        @if(isset($unreadCount) && $unreadCount > 0)
                             <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                         @endif
                     </a>
@@ -225,20 +225,20 @@
                             <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
                                 <i data-lucide="user" class="w-4 h-4 text-primary-600"></i>
                             </div>
-                            <span class="hidden sm:inline text-sm font-medium text-gray-700">{{ Auth::user()->name ?? 'Admin' }}</span>
+                            <span class="hidden sm:inline text-sm font-medium text-gray-700">{{ Auth::guard('admin')->user()->name ?? 'Admin' }}</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400"></i>
                         </button>
 
                         <div x-show="open" x-transition @click.away="open = false"
                              class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
                             <div class="px-4 py-2 border-b border-gray-100">
-                                <p class="text-sm font-semibold text-gray-800">{{ Auth::user()->name ?? 'Admin' }}</p>
-                                <p class="text-xs text-gray-400">{{ Auth::user()->email ?? 'admin@email.com' }}</p>
+                                <p class="text-sm font-semibold text-gray-800">{{ Auth::guard('admin')->user()->name ?? 'Admin' }}</p>
+                                <p class="text-xs text-gray-400">{{ Auth::guard('admin')->user()->email ?? 'admin@email.com' }}</p>
                             </div>
                             <a href="#" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
                                 <i data-lucide="settings" class="w-4 h-4"></i> Pengaturan
                             </a>
-                            <form action="{{ route('logout') }}" method="POST">
+                            <form action="{{ route('admin.logout') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                                     <i data-lucide="log-out" class="w-4 h-4"></i> Keluar

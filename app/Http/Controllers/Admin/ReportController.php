@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Car;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -39,10 +40,11 @@ class ReportController extends Controller
             ->get();
 
         // Pendapatan per mobil
-        $revenueByCar = Payment::where('status', 'verified')
-            ->whereBetween('created_at', [$startDate, $endDate])
+        $revenueByCar = Payment::query()
             ->join('bookings', 'payments.booking_id', '=', 'bookings.id')
             ->join('cars', 'bookings.car_id', '=', 'cars.id')
+            ->where('payments.status', 'verified')
+            ->whereBetween('payments.created_at', [$startDate, $endDate])
             ->selectRaw('cars.name as car_name, SUM(payments.amount) as total')
             ->groupBy('cars.name')
             ->orderByDesc('total')
@@ -56,13 +58,34 @@ class ReportController extends Controller
             ->paginate(20)
             ->withQueryString();
 
+        // Total transaksi dalam rentang
+        $totalTransactions = Payment::where('status', 'verified')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+
+        // Data untuk chart pendapatan bulanan
+        $chartLabels = $monthlyRevenue->pluck('month')->map(function ($m) {
+            $months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            return $months[$m] ?? $m;
+        })->toArray();
+        $chartData = $monthlyRevenue->pluck('total')->toArray();
+
+        // Data untuk chart kategori mobil
+        $categoryLabels = $revenueByCar->pluck('car_name')->toArray();
+        $categoryData = $revenueByCar->pluck('total')->toArray();
+
         return view('admin.reports.revenue', compact(
             'totalRevenue',
             'monthlyRevenue',
             'revenueByCar',
             'payments',
             'startDate',
-            'endDate'
+            'endDate',
+            'totalTransactions',
+            'chartLabels',
+            'chartData',
+            'categoryLabels',
+            'categoryData'
         ));
     }
 
@@ -117,6 +140,29 @@ class ReportController extends Controller
             ->paginate(20)
             ->withQueryString();
 
+        // Statistik tambahan
+        $completedBookings = Booking::whereBetween('created_at', [$startDate, $endDate])->where('status', 'completed')->count();
+        $cancelledBookings = Booking::whereBetween('created_at', [$startDate, $endDate])->where('status', 'cancelled')->count();
+        $avgRentalDays = $averageDuration ?? 0;
+        $avgRating = Review::where('is_approved', true)->whereBetween('created_at', [$startDate, $endDate])->avg('rating') ?? 0;
+
+        // Data untuk chart tren booking
+        $trendLabels = $monthlyBookings->pluck('month')->map(function ($m) {
+            $months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            return $months[$m] ?? $m;
+        })->toArray();
+        $trendData = $monthlyBookings->pluck('count')->toArray();
+
+        // Mobil paling sering disewa
+        $mostRentedCars = Booking::with('car')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->select('car_id', \DB::raw('COUNT(*) as total_rentals'), \DB::raw('SUM(total_price) as total_revenue'))
+            ->groupBy('car_id')
+            ->orderByDesc('total_rentals')
+            ->limit(10)
+            ->get()
+            ->pluck('car');
+
         return view('admin.reports.rentals', compact(
             'totalBookings',
             'bookingsByStatus',
@@ -125,7 +171,14 @@ class ReportController extends Controller
             'averageDuration',
             'bookings',
             'startDate',
-            'endDate'
+            'endDate',
+            'completedBookings',
+            'cancelledBookings',
+            'avgRentalDays',
+            'avgRating',
+            'trendLabels',
+            'trendData',
+            'mostRentedCars'
         ));
     }
 
@@ -152,10 +205,11 @@ class ReportController extends Controller
             ->latest()
             ->get();
 
-        $revenueByCar = Payment::where('status', 'verified')
-            ->whereBetween('created_at', [$startDate, $endDate])
+        $revenueByCar = Payment::query()
             ->join('bookings', 'payments.booking_id', '=', 'bookings.id')
             ->join('cars', 'bookings.car_id', '=', 'cars.id')
+            ->where('payments.status', 'verified')
+            ->whereBetween('payments.created_at', [$startDate, $endDate])
             ->selectRaw('cars.name as car_name, SUM(payments.amount) as total')
             ->groupBy('cars.name')
             ->orderByDesc('total')

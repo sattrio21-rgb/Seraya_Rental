@@ -120,7 +120,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 mb-1">Driver</p>
-                        <p class="text-sm text-gray-800">{{ $booking->with_driver ? 'Ya (+ Rp ' . number_format($booking->driver_price ?? 0, 0, ',', '.') . ')' : 'Tidak' }}</p>
+                        <p class="text-sm text-gray-800">{{ $booking->rental_type == 'with_driver' ? 'Ya' : 'Tidak' }}</p>
                     </div>
                 </div>
                 @if($booking->notes ?? false)
@@ -139,19 +139,13 @@
                 </h4>
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Harga Sewa</span>
-                        <span class="text-sm text-gray-800">Rp {{ number_format($booking->rental_price ?? 0, 0, ',', '.') }}</span>
+                        <span class="text-sm text-gray-600">Tipe Sewa</span>
+                        <span class="text-sm text-gray-800">{{ $booking->rental_type == 'with_driver' ? 'Dengan Driver' : 'Lepas Kunci' }}</span>
                     </div>
-                    @if($booking->driver_price ?? false)
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">Biaya Driver</span>
-                        <span class="text-sm text-gray-800">Rp {{ number_format($booking->driver_price, 0, ',', '.') }}</span>
-                    </div>
-                    @endif
-                    @if($booking->promo_discount ?? false)
+                    @if(($booking->discount_amount ?? 0) > 0)
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">Diskon Promo</span>
-                        <span class="text-sm text-green-600">- Rp {{ number_format($booking->promo_discount, 0, ',', '.') }}</span>
+                        <span class="text-sm text-green-600">- Rp {{ number_format($booking->discount_amount, 0, ',', '.') }}</span>
                     </div>
                     @endif
                     <div class="flex items-center justify-between pt-3 border-t border-gray-100">
@@ -204,21 +198,25 @@
                         'failed' => 'bg-red-100 text-red-700 border-red-200',
                     ];
                 @endphp
-                <div class="p-3 rounded-xl border {{ $paymentColors[$booking->payment_status ?? 'pending'] ?? 'bg-gray-100 text-gray-700 border-gray-200' }}">
+                @php
+                    $latestPayment = $booking->payments->first();
+                    $paymentStatus = $latestPayment ? $latestPayment->status : 'pending';
+                @endphp
+                <div class="p-3 rounded-xl border {{ $paymentColors[$paymentStatus] ?? 'bg-gray-100 text-gray-700 border-gray-200' }}">
                     <div class="flex items-center gap-2">
-                        <i data-lucide="{{ ($booking->payment_status ?? '') == 'paid' ? 'check-circle' : 'clock' }}" class="w-5 h-5"></i>
-                        <span class="text-sm font-semibold capitalize">{{ $booking->payment_status ?? 'pending' }}</span>
+                        <i data-lucide="{{ $paymentStatus == 'verified' ? 'check-circle' : 'clock' }}" class="w-5 h-5"></i>
+                        <span class="text-sm font-semibold capitalize">{{ $paymentStatus == 'verified' ? 'Terverifikasi' : ($paymentStatus == 'rejected' ? 'Ditolak' : 'Menunggu') }}</span>
                     </div>
                 </div>
-                @if($booking->payment)
+                @if($latestPayment)
                 <div class="mt-3 space-y-2 text-sm">
                     <div class="flex justify-between">
                         <span class="text-gray-500">Metode</span>
-                        <span class="text-gray-800">{{ $booking->payment->method ?? '-' }}</span>
+                        <span class="text-gray-800">{{ $latestPayment->payment_method ?? '-' }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-500">Tanggal</span>
-                        <span class="text-gray-800">{{ $booking->payment->paid_at ? \Carbon\Carbon::parse($booking->payment->paid_at)->format('d M Y') : '-' }}</span>
+                        <span class="text-gray-800">{{ $latestPayment->verified_at ? \Carbon\Carbon::parse($latestPayment->verified_at)->format('d M Y') : '-' }}</span>
                     </div>
                 </div>
                 @endif
@@ -231,23 +229,19 @@
                     Riwayat Status
                 </h4>
                 <div class="space-y-4">
-                    @forelse($booking->statusHistory ?? [] as $history)
                     <div class="flex gap-3">
                         <div class="flex flex-col items-center">
                             <div class="w-3 h-3 bg-primary-500 rounded-full mt-1.5"></div>
                             <div class="w-px flex-1 bg-gray-200"></div>
                         </div>
                         <div class="pb-4">
-                            <p class="text-sm font-semibold text-gray-800">{{ $statusLabels[$history->status] ?? $history->status }}</p>
-                            <p class="text-xs text-gray-500">{{ $history->created_at ? \Carbon\Carbon::parse($history->created_at)->format('d M Y H:i') : '' }}</p>
-                            @if($history->notes)
-                                <p class="text-xs text-gray-500 mt-1">{{ $history->notes }}</p>
+                            <p class="text-sm font-semibold text-gray-800">{{ $statusLabels[$booking->status] ?? $booking->status }}</p>
+                            <p class="text-xs text-gray-500">{{ $booking->created_at ? \Carbon\Carbon::parse($booking->created_at)->format('d M Y H:i') : '' }}</p>
+                            @if($booking->cancelled_reason)
+                                <p class="text-xs text-gray-500 mt-1">{{ $booking->cancelled_reason }}</p>
                             @endif
                         </div>
                     </div>
-                    @empty
-                    <p class="text-sm text-gray-500">Belum ada riwayat status</p>
-                    @endforelse
                 </div>
             </div>
 

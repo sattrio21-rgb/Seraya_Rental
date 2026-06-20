@@ -30,8 +30,8 @@
            class="px-4 py-2 rounded-xl text-sm font-medium transition-colors {{ request('status') == 'pending' ? 'bg-yellow-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
             Menunggu
         </a>
-        <a href="{{ route('admin.documents.index', ['status' => 'approved']) }}"
-           class="px-4 py-2 rounded-xl text-sm font-medium transition-colors {{ request('status') == 'approved' ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+        <a href="{{ route('admin.documents.index', ['status' => 'verified']) }}"
+           class="px-4 py-2 rounded-xl text-sm font-medium transition-colors {{ request('status') == 'verified' ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
             Disetujui
         </a>
         <a href="{{ route('admin.documents.index', ['status' => 'rejected']) }}"
@@ -66,12 +66,12 @@
                         @php
                             $statusColors = [
                                 'pending' => 'bg-yellow-100 text-yellow-700',
-                                'approved' => 'bg-green-100 text-green-700',
+                                'verified' => 'bg-green-100 text-green-700',
                                 'rejected' => 'bg-red-100 text-red-700',
                             ];
                             $statusLabels = [
                                 'pending' => 'Menunggu Verifikasi',
-                                'approved' => 'Disetujui',
+                                'verified' => 'Terverifikasi',
                                 'rejected' => 'Ditolak',
                             ];
                         @endphp

@@ -8,6 +8,7 @@ use App\Models\Car;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\ContactMessage;
+use App\Models\NotificationLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -45,6 +46,9 @@ class DashboardController extends Controller
         // Pesan kontak yang belum dibaca
         $unreadMessages = ContactMessage::unread()->count();
 
+        // Notifikasi yang belum dibaca
+        $unreadCount = NotificationLog::where('user_id', auth()->id())->unread()->count();
+
         // Pendapatan bulan ini
         $monthlyRevenue = Payment::where('status', 'verified')
             ->whereMonth('created_at', Carbon::now()->month)
@@ -70,7 +74,8 @@ class DashboardController extends Controller
             'pendingPayments',
             'unreadMessages',
             'monthlyRevenue',
-            'currentMonthBookings'
+            'currentMonthBookings',
+            'unreadCount'
         ));
     }
 }

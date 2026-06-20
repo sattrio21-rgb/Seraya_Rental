@@ -14,18 +14,25 @@ require __DIR__.'/auth.php';
 
 // Dashboard redirect based on role
 Route::get('/dashboard', function () {
-    $user = auth()->user();
-    if ($user->isAdmin()) {
+    if (auth()->guard('admin')->check()) {
         return redirect()->route('admin.dashboard');
     }
-    return redirect()->route('bookings.index');
-})->middleware(['auth'])->name('dashboard');
+    return redirect()->route('home');
+})->name('dashboard');
 
 // Customer Profile Routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth:web'])->group(function () {
     Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profil', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profil/password', [ProfileController::class, 'changePassword'])->name('profile.password');
+
+    // Customer Logout
+    Route::post('/logout', function () {
+        auth()->guard('web')->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+        return redirect('/');
+    })->name('customer.logout');
 });
 
 // Cars (public)
@@ -34,7 +41,7 @@ Route::get('/mobil/{car}', [CarController::class, 'show'])->name('cars.show');
 Route::post('/mobil/check-availability', [CarController::class, 'checkAvailability'])->name('cars.availability');
 
 // Bookings (auth required)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth:web'])->group(function () {
     Route::get('/booking', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/booking/buat', [BookingController::class, 'create'])->name('bookings.create');
     Route::post('/booking', [BookingController::class, 'store'])->name('bookings.store');
@@ -71,13 +78,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
             'password' => 'required',
         ]);
 
-        if (auth()->attempt($credentials)) {
-            $user = auth()->user();
+        if (auth()->guard('admin')->attempt($credentials)) {
+            $user = auth()->guard('admin')->user();
             if ($user->isAdmin()) {
                 $request->session()->regenerate();
+                $request->session()->put('login_type', 'admin');
                 return redirect()->intended(route('admin.dashboard'));
             }
-            auth()->logout();
+            auth()->guard('admin')->logout();
             return back()->withErrors(['email' => 'Akun ini bukan akun admin.']);
         }
 
@@ -86,13 +94,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // Admin Routes (protected)
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Admin Logout
     Route::post('/logout', function () {
-        auth()->logout();
+        auth()->guard('admin')->logout();
         request()->session()->invalidate();
         request()->session()->regenerateToken();
         return redirect(route('admin.login'));
@@ -106,6 +114,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('/mobil/{car}', [CarManagementController::class, 'update'])->name('cars.update');
     Route::delete('/mobil/{car}', [CarManagementController::class, 'destroy'])->name('cars.destroy');
     Route::post('/mobil/{car}/toggle', [CarManagementController::class, 'toggleStatus'])->name('cars.toggle');
+    Route::put('/mobil/{car}/status', [CarManagementController::class, 'updateStatus'])->name('cars.status');
     Route::post('/mobil/{car}/image', [CarManagementController::class, 'uploadImage'])->name('cars.image');
     Route::delete('/mobil/image/{image}', [CarManagementController::class, 'destroyImage'])->name('cars.image.delete');
 

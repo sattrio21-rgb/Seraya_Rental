@@ -206,13 +206,13 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    @forelse($rentalDetails ?? [] as $rental)
+                    @forelse($bookings ?? [] as $rental)
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="py-3 px-6">
                             <a href="{{ route('admin.bookings.show', $rental->id) }}" class="text-sm font-semibold text-primary-600 hover:underline">#{{ $rental->booking_code }}</a>
                         </td>
                         <td class="py-3 px-6">
-                            <p class="text-sm text-gray-800">{{ $rental->customer->name ?? '-' }}</p>
+                            <p class="text-sm text-gray-800">{{ $rental->user->name ?? '-' }}</p>
                         </td>
                         <td class="py-3 px-6 hidden md:table-cell">
                             <p class="text-sm text-gray-800">{{ $rental->car->name ?? '-' }}</p>
@@ -253,9 +253,9 @@
         </div>
 
         <!-- Pagination -->
-        @if(isset($rentalDetails) && $rentalDetails->hasPages())
+        @if(isset($bookings) && $bookings->hasPages())
         <div class="px-6 py-4 border-t border-gray-100">
-            {{ $rentalDetails->links() }}
+            {{ $bookings->links() }}
         </div>
         @endif
     </div>

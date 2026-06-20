@@ -98,7 +98,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">Bahan Bakar <span class="text-red-500">*</span></label>
                     <select name="fuel_type" required
                             class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                        <option value="gasoline" {{ old('fuel_type') == 'gasoline' ? 'selected' : '' }}>Bensin</option>
+                        <option value="petrol" {{ old('fuel_type') == 'petrol' ? 'selected' : '' }}>Bensin</option>
                         <option value="diesel" {{ old('fuel_type') == 'diesel' ? 'selected' : '' }}>Diesel</option>
                         <option value="electric" {{ old('fuel_type') == 'electric' ? 'selected' : '' }}>Listrik</option>
                         <option value="hybrid" {{ old('fuel_type') == 'hybrid' ? 'selected' : '' }}>Hybrid</option>

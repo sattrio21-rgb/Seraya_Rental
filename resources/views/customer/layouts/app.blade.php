@@ -26,21 +26,25 @@
         }
     </script>
     <style>
-        .btn-primary { @apply bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200 font-medium; }
-        .btn-secondary { @apply bg-white text-primary-600 border border-primary-600 px-4 py-2 rounded-lg hover:bg-primary-50 transition-colors duration-200 font-medium; }
-        .btn-danger { @apply bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium; }
-        .card { @apply bg-white rounded-xl shadow-md overflow-hidden; }
-        .input-field { @apply w-full rounded-lg border-gray-300 focus:border-primary-500 focus:ring-primary-500; }
-        .badge-success { @apply bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium; }
-        .badge-warning { @apply bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium; }
-        .badge-danger { @apply bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium; }
-        .badge-info { @apply bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium; }
+        .btn-primary { background-color: #2563eb; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; transition: background-color 0.2s; }
+        .btn-primary:hover { background-color: #1d4ed8; }
+        .btn-secondary { background-color: white; color: #2563eb; border: 1px solid #2563eb; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; transition: background-color 0.2s; }
+        .btn-secondary:hover { background-color: #eff6ff; }
+        .btn-danger { background-color: #dc2626; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; transition: background-color 0.2s; }
+        .btn-danger:hover { background-color: #b91c1c; }
+        .card { background-color: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+        .input-field { width: 100%; border-radius: 0.5rem; border-color: #d1d5db; }
+        .input-field:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59,130,246,0.5); }
+        .badge-success { background-color: #dcfce7; color: #166534; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+        .badge-warning { background-color: #fef9c3; color: #854d0e; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+        .badge-danger { background-color: #fee2e2; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+        .badge-info { background-color: #dbeafe; color: #1e40af; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
     </style>
     @stack('styles')
 </head>
 <body class="h-full">
     {{-- Navbar --}}
-    <nav class="bg-primary-600 shadow-md sticky top-0 z-50">
+    <nav class="bg-blue-600 shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -49,35 +53,33 @@
                         <span class="text-2xl font-bold text-white" style="display:none;">Seraya</span>
                     </a>
                     <div class="hidden md:flex md:ml-10 md:space-x-8">
-                        <a href="{{ route('home') }}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-white hover:text-primary-200">Beranda</a>
-                        <a href="{{ route('cars.index') }}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-primary-100 hover:text-white">Daftar Mobil</a>
-                        <a href="{{ route('promos.index') }}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-primary-100 hover:text-white">Promo</a>
-                        <a href="{{ route('contact') }}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-primary-100 hover:text-white">Kontak</a>
+                        <a href="{{ route('home') }}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-white hover:text-blue-200">Beranda</a>
+                        <a href="{{ route('cars.index') }}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-blue-100 hover:text-white">Daftar Mobil</a>
+                        <a href="{{ route('promos.index') }}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-blue-100 hover:text-white">Promo</a>
+                        <a href="{{ route('contact') }}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-blue-100 hover:text-white">Kontak</a>
                     </div>
                 </div>
                 <div class="flex items-center">
-                    @auth
+                    @auth('web')
+                        {{-- Customer logged in --}}
                         <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center text-sm font-medium text-white hover:text-primary-200">
-                                <span class="mr-2">{{ Auth::user()->name }}</span>
+                            <button @click="open = !open" class="flex items-center text-sm font-medium text-white hover:text-blue-200">
+                                <span class="mr-2">{{ Auth::guard('web')->user()->name }}</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                                 <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profil</a>
                                 <a href="{{ route('bookings.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Riwayat Booking</a>
                                 <a href="{{ route('documents.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dokumen</a>
-                                @if(Auth::user()->role === 'admin')
-                                    <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin Panel</a>
-                                @endif
-                                <form method="POST" action="{{ route('logout') }}">
+                                <form method="POST" action="{{ route('customer.logout') }}">
                                     @csrf
                                     <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
                                 </form>
                             </div>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="text-sm font-medium text-gray-700 hover:text-primary-600 mr-4">Login</a>
-                        <a href="{{ route('register') }}" class="btn-primary text-sm">Daftar</a>
+                        <a href="{{ route('login') }}" class="text-sm font-medium text-white hover:text-blue-200 mr-4">Login</a>
+                        <a href="{{ route('register') }}" class="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-50">Daftar</a>
                     @endauth
                 </div>
             </div>
