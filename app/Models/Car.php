@@ -50,7 +50,7 @@ class Car extends Model
 
     public function scopeAvailable(Builder $query): Builder
     {
-        return $query->where('status', 'available')->where('is_active', true);
+        return $query->where('status', 'available');
     }
 
     public function scopeByBrand(Builder $query, string $brand): Builder

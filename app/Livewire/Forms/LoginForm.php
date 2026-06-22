@@ -30,15 +30,6 @@ class LoginForm extends Form
     {
         $this->ensureIsNotRateLimited();
 
-        // Check if user exists and is not admin
-        $user = \App\Models\User::where('email', $this->email)->first();
-
-        if ($user && $user->isAdmin()) {
-            throw ValidationException::withMessages([
-                'form.email' => 'Akun ini adalah akun admin. Silakan login melalui halaman admin.',
-            ]);
-        }
-
         if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
             RateLimiter::hit($this->throttleKey());
 

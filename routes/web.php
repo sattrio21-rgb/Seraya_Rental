@@ -12,9 +12,9 @@ Route::post('/kontak', [HomeController::class, 'sendContact'])->name('contact.se
 // Auth Routes
 require __DIR__.'/auth.php';
 
-// Dashboard redirect based on role
+// Dashboard redirect based on login type
 Route::get('/dashboard', function () {
-    if (auth()->guard('admin')->check()) {
+    if (session('login_type') === 'admin') {
         return redirect()->route('admin.dashboard');
     }
     return redirect()->route('home');

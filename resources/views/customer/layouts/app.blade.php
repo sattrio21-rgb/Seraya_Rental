@@ -49,7 +49,7 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center">
-                        <img src="{{ asset('storage/logo/seraya-logo.png') }}" alt="Seraya" class="h-10" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                        <img src="{{ asset('storage/logo/seraya-logo.png') }}" alt="Seraya" class="h-10 w-auto max-w-[120px] object-contain" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
                         <span class="text-2xl font-bold text-white" style="display:none;">Seraya</span>
                     </a>
                     <div class="hidden md:flex md:ml-10 md:space-x-8">
@@ -125,7 +125,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                     <h3 class="text-lg font-bold mb-4">
-                        <img src="{{ asset('storage/logo/seraya-logo.png') }}" alt="Seraya" class="h-8 inline" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
+                        <img src="{{ asset('storage/logo/seraya-logo.png') }}" alt="Seraya" class="h-8 w-auto max-w-[100px] object-contain inline" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
                         <span style="display:none;">Seraya</span>
                     </h3>
                     <p class="text-gray-400 text-sm">Sewa mobil mudah, aman, dan terpercaya. Harga terjangkau dengan pelayanan terbaik.</p>

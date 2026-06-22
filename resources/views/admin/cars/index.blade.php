@@ -41,8 +41,7 @@
             <select name="status" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
                 <option value="">Semua Status</option>
                 <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>Tersedia</option>
-                <option value="rented" {{ request('status') == 'rented' ? 'selected' : '' }}>Disewa</option>
-                <option value="maintenance" {{ request('status') == 'maintenance' ? 'selected' : '' }}>Perawatan</option>
+                <option value="unavailable" {{ request('status') == 'unavailable' ? 'selected' : '' }}>Tidak Tersedia</option>
             </select>
             <button type="submit" class="px-5 py-2.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-colors">
                 Filter
@@ -61,7 +60,6 @@
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Harga/Hari</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase hidden lg:table-cell">Kapasitas</th>
                         <th class="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Status</th>
-                        <th class="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Aktif</th>
                         <th class="text-right py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Aksi</th>
                     </tr>
                 </thead>
@@ -105,20 +103,10 @@
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="status" :value="status">
-                                <select x-model="status" @change="$el.form.submit()" class="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500
-                                    {{ $car->status === 'available' ? 'bg-green-100 text-green-700' : ($car->status === 'rented' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') }}">
+                                <select x-model="status" @change="$el.form.submit()" class="px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-700">
                                     <option value="available">Tersedia</option>
-                                    <option value="rented">Disewa</option>
-                                    <option value="maintenance">Perawatan</option>
+                                    <option value="unavailable">Tidak Tersedia</option>
                                 </select>
-                            </form>
-                        </td>
-                        <td class="py-4 px-6">
-                            <form action="{{ route('admin.cars.toggle', $car->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors {{ $car->is_active ? 'bg-primary-600' : 'bg-gray-300' }}" title="{{ $car->is_active ? 'Aktif' : 'Nonaktif' }}">
-                                    <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {{ $car->is_active ? 'translate-x-6' : 'translate-x-1' }}"></span>
-                                </button>
                             </form>
                         </td>
                         <td class="py-4 px-6">
@@ -137,7 +125,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="py-16 text-center">
+                        <td colspan="6" class="py-16 text-center">
                             <i data-lucide="car" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
                             <p class="text-lg font-semibold text-gray-600 mb-2">Belum ada data mobil</p>
                             <p class="text-sm text-gray-500 mb-4">Mulai tambahkan mobil ke armada Anda</p>

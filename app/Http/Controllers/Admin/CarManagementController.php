@@ -135,7 +135,7 @@ class CarManagementController extends Controller
             'image'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'description'      => 'nullable|string',
             'features'         => 'nullable|string',
-            'status'           => 'required|in:available,maintenance,rented',
+            'status'           => 'required|in:available,unavailable',
             'is_active'        => 'boolean',
         ]);
 
@@ -208,15 +208,14 @@ class CarManagementController extends Controller
     public function updateStatus(Request $request, Car $car)
     {
         $validated = $request->validate([
-            'status' => 'required|in:available,rented,maintenance',
+            'status' => 'required|in:available,unavailable',
         ]);
 
         $car->update($validated);
 
         $statusLabel = match($validated['status']) {
             'available' => 'Tersedia',
-            'rented' => 'Disewa',
-            'maintenance' => 'Perawatan',
+            'unavailable' => 'Tidak Tersedia',
             default => $validated['status'],
         };
 

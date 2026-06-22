@@ -106,8 +106,7 @@
                     <select name="status" required
                             class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
                         <option value="available" {{ old('status', $car->status ?? '') == 'available' ? 'selected' : '' }}>Tersedia</option>
-                        <option value="rented" {{ old('status', $car->status ?? '') == 'rented' ? 'selected' : '' }}>Disewa</option>
-                        <option value="maintenance" {{ old('status', $car->status ?? '') == 'maintenance' ? 'selected' : '' }}>Perawatan</option>
+                        <option value="unavailable" {{ old('status', $car->status ?? '') == 'unavailable' ? 'selected' : '' }}>Tidak Tersedia</option>
                     </select>
                 </div>
             </div>
